@@ -1,3 +1,4 @@
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 import LanePath from "../autonomy/LanePath.js";
 import StaticObstacle from "../autonomy/StaticObstacle.js";
 import DynamicObstacleEditor from "./DynamicObstacleEditor.js";

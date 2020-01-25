@@ -1,3 +1,4 @@
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 export default class ShareManager {
   constructor() {
     this.modal = document.getElementById('scenario-share-modal');
@@ -21,12 +22,12 @@ export default class ShareManager {
     this.clipboardIcon.classList.remove('is-hidden');
     this.clipboardSuccessIcon.classList.add('is-hidden');
     this.clipboardButton.classList.remove('is-success');
-
-    const code = btoa(JSON.stringify(scenario));
+    const code = JSON.stringify(scenario);
+    const bcode = btoa(code);
 
     const url = new URL(window.location);
     url.search = '';
-    url.hash = '/s/' + encodeURIComponent(code);
+    url.hash = '/s/' + encodeURIComponent(bcode);
 
     this.linkDom.value = url.href;
     this.boxDom.value = code;

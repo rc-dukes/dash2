@@ -1,3 +1,4 @@
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 import { formatDate } from "../Helpers.js";
 import EXAMPLES from "./examples.js";
 
@@ -75,7 +76,7 @@ export default class ScenarioManager {
         data: data,
         savedAt: now
       };
-      
+
       scenarios[name] = scenario;
     }
 
@@ -102,7 +103,7 @@ export default class ScenarioManager {
 
     this._buildScenarioItems();
     this.itemsContainer.scrollTop = 0;
-    
+
     this.importBox.value = '';
     this.importBox.dispatchEvent(new Event('input'));
   }
@@ -217,7 +218,7 @@ export default class ScenarioManager {
 
     if (encoded != '') {
       try {
-        const json = JSON.parse(atob(this.importBox.value));
+        const json = JSON.parse(this.importBox.value);
 
         if (json.s === undefined || json.d === undefined || json.p === undefined || json.p.length % 2 != 0)
           throw new Error();

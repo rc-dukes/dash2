@@ -1,3 +1,4 @@
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 // geolocation = [33.523900, -111.908756];
 export default class MapObject extends THREE.Object3D {
   constructor(geolocation = null) {

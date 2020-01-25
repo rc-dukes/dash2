@@ -1,4 +1,4 @@
-// part of https://github.com/rc-dukes/dash fork of https://github.com/mattbradley/dash
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 import Physics from "./physics/Physics.js";
 import Path from "./autonomy/Path.js";
 import CubicPath from "./autonomy/path-planning/CubicPath.js";
@@ -34,6 +34,8 @@ var simulator;
  */
 export default class Simulator {
   constructor(domElement) {
+    // create a new background thread for the path planner
+    // https://en.wikipedia.org/wiki/Web_worker
     this.pathPlannerWorker = new Worker(URL.createObjectURL(new Blob([`(${dash_initPathPlannerWorker.toString()})()`], { type: 'text/javascript' })));
     this.pathPlannerWorker.onmessage = this.receivePlannedPath.bind(this);
     this.pathPlannerConfigEditor = new PathPlannerConfigEditor();
@@ -68,7 +70,7 @@ export default class Simulator {
 
     this.editor = new Editor(this.renderer.domElement, this.editorCamera.pcam, this.scene);
 
-    const geolocation = null;//[33.523900, -111.908756];
+    const geolocation = null;//[33.523900, -111.908756]; // Scotsdale AZ, US
     const map = new MapObject(geolocation);
     this.scene.add(map);
 

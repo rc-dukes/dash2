@@ -1,4 +1,5 @@
-const COLOR = 0xdd0000;
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
+const COLOR = 0xdd0000; // Free Speech Red
 const HEIGHT = 5;
 
 export default class StaticObstacleObject extends THREE.Object3D {

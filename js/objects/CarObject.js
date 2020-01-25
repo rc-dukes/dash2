@@ -1,4 +1,4 @@
-// part of https://github.com/rc-dukes/dash fork of https://github.com/mattbradley/dash
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 import Car from "../physics/Car.js";
 import TDSLoader from "./TDSLoader.js";
 import TDSModel from "../../models/suv.js";
