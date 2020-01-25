@@ -1,0 +1,32 @@
+#!/bin/bash
+# WF 2020-01-14
+
+#
+# show usage
+#
+usage() {
+  echo "usage $0 [-h|--help] | [-w|--watch]"
+  exit 1
+}
+
+which webpack > /dev/null
+if [  $? -ne 0 ]
+then
+  echo "installing dependencies ..."
+  npm install --save-dev 
+fi
+cmd="build"
+options="--mode=production"
+for i in "$@"
+do
+  case $i in
+    -h|--help)
+      usage
+      ;;
+    -w|--watch)
+      cmd="watch" 
+      options="--mode=development"
+      ;;
+  esac
+done
+npm run $cmd $options
