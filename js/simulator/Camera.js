@@ -1,4 +1,4 @@
-// part of https://github.com/rc-dukes/dash fork of https://github.com/mattbradley/dash
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 // handles the different Tree.js Cameras and the corresponding OrbitControls
 import OrbitControls from "./OrbitControls.js";
 
@@ -138,9 +138,9 @@ export class Camera {
   }
 
   /**
-    * enable me -  make my enablement visible by changing the appearance of my button
-    * @param enabled - true if i should be activated
-    */
+   * enable me -  make my enablement visible by changing the appearance of my button
+   * @param enabled - true if i should be activated
+   */
   enable(enabled) {
     this.controls.enabled = enabled;
     if (!this.isEditor) {
@@ -163,22 +163,19 @@ export class Camera {
     const pos = this.car.position;
     switch (this.name) {
       case 'free':
-        var cpos=this.cameras.cameras['chase'].pcam.position;
-        this.pcam.position.set(cpos.x,cpos.y);
-        this.controls.target.set(pos.x, 0, pos.y);
-        this.controls.update();
         break;
       case 'chase':
-        const cv = this.car.vector(-20);
-        this.pcam.position.set(pos.x + cv.x, 8, pos.y + cv.y);
-        this.pcam.lookAt(pos.x, 0, pos.y);
+        const frontc = this.car.frontAxlePosition;
+        const vc = this.car.vector(-10);
+        this.pcam.position.set(frontc.x+vc.x*2, 5, frontc.y+vc.y*2);
+        this.controls.target.set(frontc.x + vc.x, 1, frontc.y + vc.y);
         this.controls.update();
         break;
       case 'driver':
-        const front=this.car.frontAxlePosition;
-        const v=this.car.vector(10);
+        const front = this.car.frontAxlePosition;
+        const v = this.car.vector(10);
         this.pcam.position.set(front.x, 1, front.y);
-        this.controls.target.set(front.x+v.x, 1, front.y+v.y);
+        this.controls.target.set(front.x + v.x, 1, front.y + v.y);
         this.controls.update();
         break;
       case 'editor':
