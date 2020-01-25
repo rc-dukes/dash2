@@ -114,10 +114,13 @@ export default class Editor {
     document.addEventListener('keyup', this.keyUp.bind(this));
 
     const resolution = new THREE.Vector2(this.canvas.clientWidth, this.canvas.clientHeight);
+    // Dark Cerulean 0x004488
+    var centerColor=new THREE.Color(0xf0f0f0);
+    var laneColor=centerColor; // new THREE.Color(0xff40ff);
     this.centerlineObject = new THREE.Mesh(
       new THREE.Geometry(),
       new MeshLineMaterial({
-        color: new THREE.Color(0x004488),
+        color: centerColor,
         lineWidth: 8,
         resolution: resolution,
         sizeAttenuation: false,
@@ -133,7 +136,7 @@ export default class Editor {
     this.leftBoundaryObject = new THREE.Mesh(
       new THREE.Geometry(),
       new MeshLineMaterial({
-        color: new THREE.Color(0xff40ff),
+        color: laneColor,
         lineWidth: 0.15,
         resolution: resolution,
         transparent: true,
@@ -147,7 +150,7 @@ export default class Editor {
     this.rightBoundaryObject = new THREE.Mesh(
       new THREE.Geometry(),
       new MeshLineMaterial({
-        color: new THREE.Color(0xff40ff),
+        color: laneColor,
         lineWidth: 0.15,
         resolution: resolution,
         transparent: true,

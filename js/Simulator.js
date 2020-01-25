@@ -648,23 +648,25 @@ export default class Simulator {
     else
       this.autonomousCarController = new FollowController(followPath, this.car);
 
-    const pathGeometry = new THREE.Geometry();
-    pathGeometry.setFromPoints(path.map(p => new THREE.Vector3(p.pos.x, 0, p.pos.y)));
-    const pathLine = new MeshLine();
-    pathLine.setGeometry(pathGeometry);
+    if (!this.remoteController.enabled) {
+      const pathGeometry = new THREE.Geometry();
+      pathGeometry.setFromPoints(path.map(p => new THREE.Vector3(p.pos.x, 0, p.pos.y)));
+      const pathLine = new MeshLine();
+      pathLine.setGeometry(pathGeometry);
 
-    // path color 0xff8800 orange
-    const color = fromVehicleParams.type == 'cubic' ? new THREE.Color(0xff8800) : new THREE.Color(0xffff40);
-    const pathObject = new THREE.Mesh(
-      pathLine.geometry,
-      new MeshLineMaterial({
-        color: color,
-        lineWidth: 0.05,
-        resolution: new THREE.Vector2(this.renderer.domElement.clientWidth, this.renderer.domElement.clientHeight)
-      })
-    );
-    pathObject.renderOrder = 1;
-    this.plannedPathGroup.add(pathObject);
+      // path color 0xff8800 orange
+      const color = fromVehicleParams.type == 'cubic' ? new THREE.Color(0xff8800) : new THREE.Color(0xffff40);
+      const pathObject = new THREE.Mesh(
+        pathLine.geometry,
+        new MeshLineMaterial({
+          color: color,
+          lineWidth: 0.05,
+          resolution: new THREE.Vector2(this.renderer.domElement.clientWidth, this.renderer.domElement.clientHeight)
+        })
+      );
+      pathObject.renderOrder = 1;
+      this.plannedPathGroup.add(pathObject);
+   }
   }
 
   // periodically called step
