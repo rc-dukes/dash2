@@ -1,3 +1,4 @@
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 const halfLaneWidth = 3.7;
 
 const centerlineGeometry = new THREE.Geometry();

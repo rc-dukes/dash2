@@ -1,3 +1,4 @@
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 export default class DynamicObstacleObject extends THREE.Object3D {
   constructor(dynamicObstacle, lanePath) {
     super();

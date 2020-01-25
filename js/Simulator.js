@@ -578,7 +578,8 @@ export default class Simulator {
     this.scene.add(this.plannedPathGroup);
 
     const circleGeom = new THREE.CircleGeometry(0.1, 32);
-    const circleMat = new THREE.MeshBasicMaterial({ color: 0x00ff80, transparent: true, opacity: 0.7 });
+    // Spring Green 0x00ff80
+    const circleMat = new THREE.MeshBasicMaterial({ color: 0xc0ff80, transparent: true, opacity: 0.7 });
 
     const lattice = new RoadLattice(this.editor.lanePath, latticeStartStation, config);
     lattice.lattice.forEach(cells => {
@@ -652,12 +653,13 @@ export default class Simulator {
     const pathLine = new MeshLine();
     pathLine.setGeometry(pathGeometry);
 
+    // path color 0xff8800 orange
     const color = fromVehicleParams.type == 'cubic' ? new THREE.Color(0xff8800) : new THREE.Color(0xffff40);
     const pathObject = new THREE.Mesh(
       pathLine.geometry,
       new MeshLineMaterial({
         color: color,
-        lineWidth: 0.15,
+        lineWidth: 0.05,
         resolution: new THREE.Vector2(this.renderer.domElement.clientWidth, this.renderer.domElement.clientHeight)
       })
     );
