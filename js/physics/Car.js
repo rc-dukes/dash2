@@ -1,4 +1,4 @@
-// part of https://github.com/rc-dukes/dash
+// part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 
 /**
  * the car as the physical object of the simulation

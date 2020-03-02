@@ -648,7 +648,7 @@ export default class Simulator {
     else
       this.autonomousCarController = new FollowController(followPath, this.car);
 
-    if (!this.remoteController.enabled) {
+    if (this.remoteController==null || !this.remoteController.enabled) {
       const pathGeometry = new THREE.Geometry();
       pathGeometry.setFromPoints(path.map(p => new THREE.Vector3(p.pos.x, 0, p.pos.y)));
       const pathLine = new MeshLine();
