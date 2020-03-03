@@ -49,7 +49,7 @@ export default class Simulator {
       antialias: true,
       preserveDrawingBuffer: true
     });
-    var pixelRatioFactor=2/3;
+    var pixelRatioFactor=1/3;
     this.renderer.setPixelRatio(window.devicePixelRatio*pixelRatioFactor);
     var cWidth=domElement.clientWidth;
     var cHeight=domElement.clientHeight;
