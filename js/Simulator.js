@@ -49,8 +49,11 @@ export default class Simulator {
       antialias: true,
       preserveDrawingBuffer: true
     });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(domElement.clientWidth, domElement.clientHeight);
+    var pixelRatioFactor=2/3;
+    this.renderer.setPixelRatio(window.devicePixelRatio*pixelRatioFactor);
+    var cWidth=domElement.clientWidth;
+    var cHeight=domElement.clientHeight;
+    this.renderer.setSize(cWidth,cHeight);
     this.renderer.shadowMap.enabled = true;
     domElement.appendChild(this.renderer.domElement);
 
