@@ -51,7 +51,7 @@ export default class Simulator {
     });
     var cWidth=domElement.clientWidth;
     var cHeight=domElement.clientHeight;
-    var pixelRatioFactor=800/cWidth;
+    var pixelRatioFactor=400/cWidth;
     this.renderer.setPixelRatio(window.devicePixelRatio*pixelRatioFactor);
     this.renderer.setSize(cWidth,cHeight);
     this.renderer.shadowMap.enabled = true;
