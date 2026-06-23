@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# WF 2026-06-23
+# install dependencies for dash (Linux/macOS)
+
+set -e
+
+# directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+#
+# show usage
+#
+usage() {
+  echo "usage: $0 [-h|--help]"
+  echo "  installs npm dependencies for the dash project"
+  exit 1
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help) usage ;;
+  esac
+done
+
+# check for node / npm
+if ! command -v npm >/dev/null 2>&1; then
+  echo "error: npm not found. Please install Node.js (https://nodejs.org/) first." >&2
+  exit 1
+fi
+
+echo "node: $(node --version 2>/dev/null || echo 'n/a')"
+echo "npm:  $(npm --version)"
+echo "installing dependencies ..."
+npm install
+echo "done."

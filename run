@@ -1,32 +1,48 @@
-#!/bin/bash
-# WF 2020-01-14
+#!/usr/bin/env bash
+# WF 2020-01-14, updated 2026-06-23
+# build/watch dash (Linux/macOS)
+
+set -e
+
+# directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 #
 # show usage
 #
 usage() {
-  echo "usage $0 [-h|--help] | [-w|--watch]"
+  echo "usage: $0 [-h|--help] | [-w|--watch]"
+  echo "  builds dash (production by default)"
+  echo "  -w|--watch  development build in watch mode"
   exit 1
 }
 
-which webpack > /dev/null
-if [  $? -ne 0 ]
-then
-  echo "installing dependencies ..."
-  npm install --save-dev 
-fi
 cmd="build"
 options="--mode=production"
-for i in "$@"
-do
-  case $i in
+for arg in "$@"; do
+  case "$arg" in
     -h|--help)
       usage
       ;;
     -w|--watch)
-      cmd="watch" 
+      cmd="watch"
       options="--mode=development"
       ;;
   esac
 done
-npm run $cmd $options
+
+# ensure webpack is available; install deps if missing
+if [ ! -x "node_modules/.bin/webpack" ]; then
+  echo "webpack not found - installing dependencies ..."
+  ./install
+fi
+
+# Webpack 4 uses the legacy MD4 hash, which OpenSSL 3 (Node 17+) disables.
+# Enable the legacy provider so the build runs on modern Node. See issue #15.
+node_major="$(node -e 'console.log(process.versions.node.split(".")[0])' 2>/dev/null || echo 0)"
+if [ "$node_major" -ge 17 ]; then
+  export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--openssl-legacy-provider"
+fi
+
+npm run "$cmd" -- $options

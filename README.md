@@ -124,5 +124,5 @@ Real-time motion planner and autonomous vehicle simulator in the browser, built 
  Dash is [MIT licensed](./LICENSE).
 
  ## History
- Project started at: https://github.com/mattbradley/dash
- a  fork with pull requests and issue handling was unsuccessful so the project was copied
+ Project started at (upstream / original): https://github.com/mattbradley/dash
+ A fork with pull requests and issue handling was unsuccessful, so the project was copied into https://github.com/rc-dukes/dash2 .
