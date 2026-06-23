@@ -119,6 +119,17 @@ Real-time motion planner and autonomous vehicle simulator in the browser, built 
  npm run watch
  ```
 
+ ## Remote Control (vert.x)
+
+ This `rc-dukes` fork adds a remote-control feature (not present in the
+ original project): the simulated car can be driven by an external
+ [vert.x](https://vertx.io/) application over the vert.x EventBus, and the
+ simulator view is streamed back to a debug image server. The external backend
+ is the RC-car project [`rc-dukes/dukes`](https://github.com/rc-dukes/dukes).
+
+ See [docs/remote-control.md](./docs/remote-control.md) for the architecture,
+ EventBus addresses ("callsigns"), and the control message schema.
+
  ## License
 
  Dash is [MIT licensed](./LICENSE).

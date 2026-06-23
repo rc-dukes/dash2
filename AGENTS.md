@@ -25,4 +25,5 @@ Dash: in-browser self-driving car simulator and lattice-based motion planner. Pl
 ## Structure
 - `js/` app source (entry `js/Dash.js`): `autonomy/`, `physics/`, `simulator/`, `objects/`, `remote/`.
 - `workers/` Web Worker source. `vendor/` third-party libs (not npm-managed). `dist/` build output (gitignored).
+- `js/remote/` is the vert.x EventBus remote-control bridge (depends on an external `rc-dukes/dukes` backend); see `docs/remote-control.md`.
 - Rebuild with `npm run build` after source changes.
