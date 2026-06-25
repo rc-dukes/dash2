@@ -1,7 +1,14 @@
 // part of https://github.com/rc-dukes/dash2 fork of https://github.com/mattbradley/dash
 import Car from "../physics/Car.js";
 import TDSLoader from "./TDSLoader.js";
-import TDSModel from "../../models/suv.js";
+import GeneralLeeModel from "../../models/generalLee.js";
+
+const MODEL_TYPES = {
+  generalLee: () => Promise.resolve(GeneralLeeModel),
+  suv: () => import("../../models/suv.js").then(module => module.default)
+};
+
+const DEFAULT_MODEL = "generalLee";
 
 /**
  * the visual representation of the car
@@ -16,7 +23,8 @@ export default class CarObject extends THREE.Object3D {
 
     this.car = car;
     // the default model to use
-    this.model = new TDSModel();
+    this.modelName = DEFAULT_MODEL;
+    this.model = new GeneralLeeModel();
     this.buildCar2D();
     // build the car with special wheel handling
     this.buildCar3D(this.model.base64data,this.model);
@@ -34,6 +42,7 @@ export default class CarObject extends THREE.Object3D {
     );
     carMesh.rotation.x = -Math.PI / 2;
     carMesh.layers.set(2);
+    this.carBody2D = carMesh;
     this.add(carMesh);
 
     const wheelGeometry = new THREE.PlaneGeometry(Car.HALF_WHEEL_LENGTH * 2, Car.HALF_WHEEL_WIDTH * 2);
@@ -43,6 +52,7 @@ export default class CarObject extends THREE.Object3D {
       transparent: true,
       opacity: 0.7
     })
+    this.wheelMaterial2D = wheelMaterial;
 
     this.lfWheel2D = new THREE.Mesh(wheelGeometry, wheelMaterial);
     this.lfWheel2D.renderOrder = 1;
@@ -71,6 +81,32 @@ export default class CarObject extends THREE.Object3D {
     rrWheel.rotation.x = -Math.PI / 2;
     rrWheel.layers.set(2);
     this.add(rrWheel);
+  }
+
+  setModel(modelName) {
+    const loadModel = MODEL_TYPES[modelName];
+    if (!loadModel) {
+      console.log(`Unknown car model: ${modelName}`);
+      return;
+    }
+
+    this.pendingModelName = modelName;
+    loadModel().then(Model => {
+      if (this.pendingModelName !== modelName)
+        return;
+
+      this.modelName = modelName;
+      this.model = new Model();
+      this.updateCar2DColors();
+      this.buildCar3D(this.model.base64data,this.model);
+    });
+  }
+
+  updateCar2DColors() {
+    if (this.carBody2D)
+      this.carBody2D.material.color.setHex(this.model.carColor);
+    if (this.wheelMaterial2D)
+      this.wheelMaterial2D.color.setHex(this.model.wheelColor);
   }
 
   buildCar3D(base64data,skinner=null) {
@@ -123,3 +159,6 @@ export default class CarObject extends THREE.Object3D {
     if (this.rfWheel3D) this.rfWheel3D.rotation.y = wheelAngle;
   }
 }
+
+CarObject.DEFAULT_MODEL = DEFAULT_MODEL;
+CarObject.MODEL_TYPES = MODEL_TYPES;
