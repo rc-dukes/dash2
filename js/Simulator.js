@@ -23,7 +23,8 @@ import StaticObstacle from "./autonomy/StaticObstacle.js";
 import DynamicObstacle from "./autonomy/DynamicObstacle.js";
 import MovingAverage from "./autonomy/MovingAverage.js";
 import PathPlannerConfigEditor from "./simulator/PathPlannerConfigEditor.js";
-import SimulatorVerticle from "./remote/SimulatorVerticle"
+import RemoteConfigEditor from "./remote/RemoteConfigEditor.js";
+import SimulatorVerticle from "./remote/SimulatorVerticle.js";
 
 const FRAME_TIMESTEP = 1 / 60;
 const WELCOME_MODAL_KEY = 'dash_WelcomeModal';
@@ -39,6 +40,7 @@ export default class Simulator {
     this.pathPlannerWorker = new Worker(URL.createObjectURL(new Blob([`(${dash_initPathPlannerWorker.toString()})()`], { type: 'text/javascript' })));
     this.pathPlannerWorker.onmessage = this.receivePlannedPath.bind(this);
     this.pathPlannerConfigEditor = new PathPlannerConfigEditor();
+    this.remoteConfigEditor = new RemoteConfigEditor();
 
     this.physics = new Physics();
     // the car to be used
@@ -399,8 +401,13 @@ export default class Simulator {
    */
   onSendImage(self) {
     // https://stackoverflow.com/a/26197858/1497139
-    var strMime = "image/jpeg";
-    var imgData = this.renderer.domElement.toDataURL(strMime);
+    const remoteConfig = self.remoteConfigEditor.config;
+    const imageQuality = remoteConfig.imageQuality;
+    let imgData;
+    if (imageQuality === null || Number.isNaN(imageQuality))
+      imgData = self.renderer.domElement.toDataURL(remoteConfig.imageMimeType);
+    else
+      imgData = self.renderer.domElement.toDataURL(remoteConfig.imageMimeType, imageQuality);
     self.remoteController.sendImage(imgData);
   }
 
@@ -412,14 +419,13 @@ export default class Simulator {
    */
   onEnableRemoteControl(self,enabled) {
     if (enabled) {
-      if (self.remoteController===null) {
-        // @TODO - make configurable
-        self.remoteController=new SimulatorVerticle("http://localhost:8080/eventbus",self,self.onHeartBeat);
-      }
-      if (self.remoteController.enabled) {
+      if (self.remoteController && self.remoteController.enabled) {
         self.remoteController.stop();
       } else {
-        self.remoteController.start()
+        const remoteConfig = self.remoteConfigEditor.config;
+        const onHeartBeat = remoteConfig.watchdogEnabled ? self.onHeartBeat : null;
+        self.remoteController=new SimulatorVerticle(remoteConfig,self,onHeartBeat);
+        self.remoteController.start();
       }
     } else {
       if (self.remoteController)

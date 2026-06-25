@@ -14,7 +14,7 @@ external backend is the RC-car project [`rc-dukes/dukes`](https://github.com/rc-
 ```
 +---------------------------+        SockJS / vert.x EventBus        +-----------------------+
 |  Dash simulator (browser) |  <-----------------------------------> |  vert.x EventBus      |
-|                           |        http://localhost:8080/eventbus  |  bridge (rc-dukes/    |
+|                           |        configurable EventBus URL       |  bridge (rc-dukes/    |
 |  js/remote/               |                                        |  dukes backend)       |
 |    SimulatorVerticle.js   |                                        +-----------------------+
 +---------------------------+
@@ -31,37 +31,57 @@ Implementation: `js/remote/SimulatorVerticle.js`, wired into the simulator in
 ## Enabling
 
 The feature is toggled by the **remote** mode button in the simulator UI
-(`Simulator.onEnableRemoteControl`). On first activation it constructs a
-`SimulatorVerticle` pointing at the EventBus URL and opens the connection.
-
-> **Note:** The EventBus URL is currently **hardcoded** to
-> `http://localhost:8080/eventbus` in `js/Simulator.js`
-> (`// @TODO - make configurable`). See the configurability issue.
+(`Simulator.onEnableRemoteControl`). On activation it constructs a
+`SimulatorVerticle` from the current remote configuration and opens the
+connection.
 
 A running vert.x EventBus bridge (from `rc-dukes/dukes`) must be reachable at
-that address, otherwise the connection state stays red.
+the configured address, otherwise the connection state stays red. The default
+address is `http://localhost:8080/eventbus`.
+
+## Configuration
+
+Remote settings are editable in the simulator config panel under
+**Remote Config** and are persisted in browser `localStorage` under
+`dash_RemoteConfig`. The restore-defaults button removes the stored remote
+configuration and returns to the legacy defaults.
+
+| Setting               | Default                         | Purpose |
+|-----------------------|---------------------------------|---------|
+| `busUrl`              | `http://localhost:8080/eventbus`| vert.x EventBus bridge URL |
+| `watchdogEnabled`     | `true`                          | Registers the heartbeat/watchdog handler when remote mode starts |
+| `debugHeartbeat`      | `true`                          | Logs heartbeat message bodies to the console |
+| `heartbeatCallsign`   | `Velvet ears`                   | Watchdog / heartbeat inbound address |
+| `carCallsign`         | `Lost sheep Bo`                 | Car-control inbound address |
+| `imageServerCallsign` | `Red Dog`                       | Debug-image outbound address prefix |
+| `imageAddressSuffix`  | `SIMULATOR_IMAGE`               | Debug-image outbound address suffix |
+| `imageMimeType`       | `image/jpeg`                    | MIME type passed to `canvas.toDataURL()` |
+| `imageQuality`        | blank                           | Optional quality value passed to `canvas.toDataURL()` |
 
 ## EventBus addresses ("callsigns")
 
-The fork uses Dukes-of-Hazzard-themed callsigns as EventBus addresses. They are
-defined as constants at the top of `SimulatorVerticle.js`:
+The fork uses Dukes-of-Hazzard-themed callsigns as default EventBus addresses.
+They can be changed in **Remote Config**:
 
-| Constant         | Address (callsign) | Role                         | Direction (relative to simulator) |
-|------------------|--------------------|------------------------------|-----------------------------------|
-| `CALLSIGN_FLASH` | `Velvet ears`      | Watchdog / heartbeat         | inbound (handler registered)      |
-| `CALLSIGN_BO`    | `Lost sheep Bo`    | Car control commands         | inbound (handler registered)      |
-| `CALLSIGN_ROSCO` | `Red Dog`          | Debug image server           | outbound (`sendImage` publishes)  |
+| Config key            | Default callsign | Role                         | Direction (relative to simulator) |
+|-----------------------|------------------|------------------------------|-----------------------------------|
+| `heartbeatCallsign`   | `Velvet ears`    | Watchdog / heartbeat         | inbound, if watchdog is enabled   |
+| `carCallsign`         | `Lost sheep Bo`  | Car control commands         | inbound                           |
+| `imageServerCallsign` | `Red Dog`        | Debug image server           | outbound (`sendImage` publishes)  |
 
-- **Heartbeat** (`Velvet ears`): each received message increments
-  `heartBeatCount`, flashes the heartbeat icon, and triggers an image reply
-  (`onSendImage`).
+- **Heartbeat** (`Velvet ears` by default): when `watchdogEnabled` is on, each
+  received message increments `heartBeatCount`, flashes the heartbeat icon, and
+  triggers an image reply (`onSendImage`). When `watchdogEnabled` is off, this
+  handler is not registered.
 - **Image stream** (`Red Dog`): the simulator publishes a JPEG data URL of the
-  current Three.js canvas to `<Red Dog>:SIMULATOR_IMAGE`.
+  current Three.js canvas to `<imageServerCallsign>:<imageAddressSuffix>`,
+  which defaults to `Red Dog:SIMULATOR_IMAGE`.
 
 ## Control message schema
 
-Car control messages arrive on `Lost sheep Bo` and are handled by
-`carMessageHandler`. The message body (`carjo`) is JSON with a `type` field:
+Car control messages arrive on `carCallsign` (`Lost sheep Bo` by default) and
+are handled by `carMessageHandler`. The message body (`carjo`) is JSON with a
+`type` field:
 
 ### `type: "servodirect"`
 Direct steering position.
@@ -107,10 +127,6 @@ button color:
 
 ## Known limitations / TODOs
 
-- EventBus URL is hardcoded (`Simulator.js`); should be configurable.
-- Callsign addresses are hardcoded constants; should be configurable.
-- The heartbeat/watchdog is always-on when remote mode is enabled; it should be
-  optional.
 - `RemoteControl`'s constructor accepts `gas`/`brake`/`steer` parameters but
   ignores them (always initializes to `0`).
 - `js/remote/Webserver.js` is non-functional (references `fs`/`http` that are
