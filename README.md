@@ -130,6 +130,10 @@ Real-time motion planner and autonomous vehicle simulator in the browser, built 
  See [docs/remote-control.md](./docs/remote-control.md) for the architecture,
  EventBus addresses ("callsigns"), and the control message schema.
 
+ To drive and test remote control **without** the Java backend, see
+ [docs/test-environment.md](./docs/test-environment.md) — a lightweight Node.js
+ test dashboard.
+
  ## License
 
  Dash is [MIT licensed](./LICENSE).
