@@ -15,7 +15,5 @@
     "webpack-cli": "^3.3.10",
     "wrapper-webpack-plugin": "2.1.0"
   },
-  "dependencies": {
-    "npm": "^5.7.1"
-  }
+  "dependencies": {}
 }
