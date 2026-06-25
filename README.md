@@ -119,6 +119,15 @@ Real-time motion planner and autonomous vehicle simulator in the browser, built 
  npm run watch
  ```
 
+ ## Car Models
+
+ Dash includes built-in 3DS car models for the simulator vehicle. The default
+ model in this `rc-dukes` fork is the General Lee, loaded from
+ `models/generalLee.js` / `models/GeneralLee.3ds`; the original SUV remains
+ available in the built-in car selector. The **Load Car** button can still load
+ a custom `.3ds` file at runtime. See [docs/car-models.md](./docs/car-models.md)
+ for model details and extension notes.
+
  ## Remote Control (vert.x)
 
  This `rc-dukes` fork adds a remote-control feature (not present in the
