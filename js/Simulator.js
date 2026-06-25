@@ -134,6 +134,7 @@ export default class Simulator {
     document.getElementById('editor-finalize').addEventListener('click', this.finalizeEditor.bind(this));
     document.getElementById('simulator-load').addEventListener('click', this.loadScenario.bind(this));
     document.getElementById('car-load').addEventListener('click', this.loadCar.bind(this));
+    document.getElementById('car-model-selector').addEventListener('change', this.selectCarModel.bind(this));
 
     this.scenarioPlayButton = document.getElementById('scenario-play');
     this.scenarioPlayButton.addEventListener('click', this.playScenario.bind(this));
@@ -460,6 +461,12 @@ export default class Simulator {
 
   updateCarModel(base64Model) {
     this.carObject.buildCar3D(base64Model);
+  }
+
+  selectCarModel() {
+    if (this.editor.enabled) return;
+    const carModelSelector = document.getElementById('car-model-selector');
+    this.carObject.setModel(carModelSelector.value);
   }
 
   switchTo2D() {
