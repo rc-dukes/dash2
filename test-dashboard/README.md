@@ -10,10 +10,18 @@ to) and a **control UI** (steering, motor, heartbeat toggle, live image).
 
 ## Run
 
+From the repo root (installs deps on first run):
+
+```bash
+./test_dashboard     # serves http://localhost:8080  (bridge at /eventbus)
+```
+
+or directly:
+
 ```bash
 cd test-dashboard
 npm install
-npm start            # serves http://localhost:8080  (bridge at /eventbus)
+npm start
 ```
 
 Then open the dash simulator (`../index.html`), press the **remote** mode

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# WF 2026-06-25
+# launch the non-Java remote-control test dashboard (Node.js + sockjs)
+# see test-dashboard/ and docs/test-environment.md (issue #21)
+
+set -e
+
+# directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/test-dashboard"
+
+#
+# show usage
+#
+usage() {
+  echo "usage: $0 [-h|--help]"
+  echo "  starts the remote-control test dashboard on http://localhost:8080"
+  echo "  (EventBus bridge at /eventbus). Press 'remote' in the simulator to connect."
+  echo "  env: PORT (default 8080), HEARTBEAT_MS (default 500)"
+  exit 1
+}
+
+case "${1:-}" in
+  -h|--help) usage ;;
+esac
+
+# install dependencies if missing
+if [ ! -d "node_modules/sockjs" ]; then
+  echo "dependencies not found - installing ..."
+  npm install
+fi
+
+exec node server.js "$@"

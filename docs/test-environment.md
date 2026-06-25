@@ -61,13 +61,17 @@ the **remote** mode button is what triggers the outbound connection.
 
 The dashboard is committed in [`test-dashboard/`](../test-dashboard/) — it is both
 the **EventBus bridge** (SockJS server on port 8080) and a **control UI**
-(steering slider, motor buttons, heartbeat toggle, live image). No scaffolding
-needed:
+(steering slider, motor buttons, heartbeat toggle, live image). Launch it from
+the repo root (installs deps on first run, like `./run`/`./install`):
 
 ```bash
-cd test-dashboard
-npm install
-npm start            # serves http://localhost:8080  (bridge at /eventbus)
+./test_dashboard     # serves http://localhost:8080  (bridge at /eventbus)
+```
+
+or directly:
+
+```bash
+cd test-dashboard && npm install && npm start
 ```
 
 Environment variables: `PORT` (default 8080), `HEARTBEAT_MS` (default 500).
