@@ -6,8 +6,9 @@
 // vert.x EventBus *bridge* (SockJS server) that the real rc-dukes/dukes Java
 // backend would otherwise provide, plus a small control UI.
 //
-// rc-dukes addressing convention: addresses are "callsign:SUFFIX", never a bare
-// callsign. Keep these in sync with js/remote/RemoteConfigEditor.js defaults.
+// Addresses must match the simulator's js/remote/RemoteConfigEditor.js defaults
+// (and the rc-dukes/dukes backend): the heartbeat and car handlers are
+// registered on the bare callsign; the image is published to callsign:SUFFIX.
 //
 // See ../docs/test-environment.md and https://github.com/rc-dukes/dash2/issues/21
 
@@ -21,10 +22,11 @@ const sockjs = require("sockjs");
 const PORT = Number(process.env.PORT) || 8080;
 const HEARTBEAT_MS = Number(process.env.HEARTBEAT_MS) || 500;
 
-// callsign + responsibility (must match the simulator's RemoteConfigEditor defaults)
+// must match RemoteConfigEditor defaults: heartbeat/car = bare callsign,
+// image = imageServerCallsign + ":" + imageAddressSuffix
 const ADDR = {
-  heartbeat: "Velvet ears:HEARTBEAT",
-  car: "Lost sheep Bo:CARCOMMAND",
+  heartbeat: "Velvet ears",
+  car: "Lost sheep Bo",
   image: "Red Dog:SIMULATOR_IMAGE",
 };
 

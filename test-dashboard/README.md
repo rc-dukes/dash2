@@ -24,14 +24,16 @@ Environment variables: `PORT` (default 8080), `HEARTBEAT_MS` (default 500).
 
 ## Addressing
 
-Uses the documented **callsign + responsibility** convention (never bare
-callsigns). Keep in sync with `../js/remote/RemoteConfigEditor.js` defaults:
+Addresses match `../js/remote/RemoteConfigEditor.js` defaults (and the
+`rc-dukes/dukes` backend). Each endpoint is a **character/responsibility** with a
+callsign; the heartbeat and car handlers use the bare callsign, the image is
+published to `callsign:SUFFIX`:
 
-| Role | Address |
-|------|---------|
-| heartbeat (watchdog) | `Velvet ears:HEARTBEAT` |
-| car control | `Lost sheep Bo:CARCOMMAND` |
-| debug image | `Red Dog:SIMULATOR_IMAGE` |
+| Responsibility | Callsign | EventBus address |
+|----------------|----------|------------------|
+| watchdog (heartbeat) | Velvet ears | `Velvet ears` |
+| car (control) | Lost sheep Bo | `Lost sheep Bo` |
+| imageview (debug image) | Red Dog | `Red Dog:SIMULATOR_IMAGE` |
 
 ## How it works
 

@@ -24,20 +24,22 @@ Authoritative documentation:
 - [Self Driving RC Car](https://wiki.bitplan.com/index.php/Self_Driving_RC_Car) / [Systemcontext](https://wiki.bitplan.com/index.php/Self_Driving_RC_Car/Systemcontext) — architecture
 - [Vert.x](https://wiki.bitplan.com/index.php/Vert.x) — EventBus / SockJS bridge background
 
-### Addressing: callsign + responsibility (never bare callsign)
+### Addressing (callsign + responsibility)
 
-EventBus addresses follow the documented `callsign:EVENT` convention (e.g.
-`Red Dog:SIMULATOR_IMAGE`). Addressing by bare callsign is a pre-2019 flaw that
-was already fixed — use callsign + responsibility.
+Each endpoint is identified by its **character/responsibility** and a **callsign**
+(see [Rc-dukes](https://wiki.bitplan.com/index.php/Rc-dukes)). The actual EventBus
+addresses, matching `js/remote/RemoteConfigEditor.js` and the `rc-dukes/dukes`
+backend, are: the **bare callsign** for the heartbeat and car handlers, and
+`callsign:SUFFIX` for the image (`Red Dog:SIMULATOR_IMAGE`).
 
-| Responsibility (module) | Character | Address (`callsign:SUFFIX`) | Direction | Dashboard role |
-|--------------------------|-----------|------------------------------|-----------|----------------|
-| watchdog (heartbeat) | FLASH | `Velvet ears:HEARTBEAT` | server → sim | send periodic heartbeats (also drives image replies) |
-| car (control inputs) | BO | `Lost sheep Bo:CARCOMMAND` | server → sim | send `servodirect` / `servo` / `motor` commands |
-| imageview (debug images) | ROSCO | `Red Dog:SIMULATOR_IMAGE` | sim → server | receive JPEG data-URLs, display them |
+| Responsibility (module) | Character | Callsign | EventBus address | Direction | Dashboard role |
+|--------------------------|-----------|----------|------------------|-----------|----------------|
+| watchdog (heartbeat) | FLASH | Velvet ears | `Velvet ears` | server → sim | send periodic heartbeats (also drives image replies) |
+| car (control inputs) | BO | Lost sheep Bo | `Lost sheep Bo` | server → sim | send `servodirect` / `servo` / `motor` commands |
+| imageview (debug images) | ROSCO | Red Dog | `Red Dog:SIMULATOR_IMAGE` | sim → server | receive JPEG data-URLs, display them |
 
-These match the defaults in `js/remote/RemoteConfigEditor.js`; change both sides
-together if you customize them.
+These match the defaults in `js/remote/RemoteConfigEditor.js` (and the
+`rc-dukes/dukes` backend); change both sides together if you customize them.
 
 ## Prerequisites
 

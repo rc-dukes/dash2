@@ -40,22 +40,11 @@ export default class SimulatorVerticle {
   };
 
   /**
-   * build an EventBus address from a callsign and its responsibility suffix.
-   * rc-dukes convention: addresses are "callsign:SUFFIX", never a bare callsign
-   * (bare-callsign addressing was a flaw fixed in 2019).
-   * @param callsign
-   * @param suffix
-   */
-  address(callsign,suffix) {
-    return callsign+":"+suffix;
-  }
-
-  /**
    * send the given image to the debug image server
    * @param imgData
    */
   sendImage(imgData) {
-    this.publish(this.address(this.config.imageServerCallsign,this.config.imageAddressSuffix),imgData);
+    this.publish(this.config.imageServerCallsign+":"+this.config.imageAddressSuffix,imgData);
   }
 
   /**
@@ -65,10 +54,9 @@ export default class SimulatorVerticle {
     if (!this.eb) {
       this.eb = new EventBus(this.busUrl);
       this.eb.onopen = function() {
-        var sv=simulatorVerticle;
-        if (sv.config.watchdogEnabled)
-          sv.eb.registerHandler(sv.address(sv.config.heartbeatCallsign,sv.config.heartbeatAddressSuffix),sv.heartBeatHandler);
-        sv.eb.registerHandler(sv.address(sv.config.carCallsign,sv.config.carAddressSuffix),sv.carMessageHandler);
+        if (simulatorVerticle.config.watchdogEnabled)
+          simulatorVerticle.eb.registerHandler(simulatorVerticle.config.heartbeatCallsign,simulatorVerticle.heartBeatHandler);
+        simulatorVerticle.eb.registerHandler(simulatorVerticle.config.carCallsign,simulatorVerticle.carMessageHandler);
       };
     };
     this.enabled=true;
@@ -121,11 +109,11 @@ export default class SimulatorVerticle {
              sv.remoteControl.gas-=0.01;
            break;
            case 'brake':
-             sv.remoteControl.brake+=0.01;
+             sv.remoteControl.break+=0.01;
            break;
            case 'stop':
              sv.remoteControl.gas=0;
-             sv.remoteControl.brake=1;
+             sv.remoteControl.break=1;
            break;
          }
       break;
@@ -179,9 +167,9 @@ export class RemoteControl {
    * @param steer
    */
   constructor(gas=0,brake=0,steer=0) {
-    this.gas=gas;
-    this.brake=brake;
-    this.steer=steer;
+    this.gas=0;
+    this.brake=0;
+    this.steer=0;
   }
 
 }
