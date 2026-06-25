@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>dash2 — Remote Control Test Dashboard</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 1.5rem; background:#1e1e1e; color:#eee; }
+  h1 { font-size: 1.2rem; }
+  .row { display:flex; gap:1.5rem; flex-wrap:wrap; align-items:flex-start; }
+  .panel { background:#2a2a2a; border:1px solid #444; border-radius:8px; padding:1rem; }
+  .pill { display:inline-block; padding:.15rem .6rem; border-radius:999px; font-size:.8rem; }
+  button { font-size:1rem; padding:.4rem .8rem; margin:.15rem; border-radius:6px; border:1px solid #555; background:#333; color:#eee; cursor:pointer; }
+  button:hover { background:#3d3d3d; }
+  input[type=range] { width: 260px; }
+  #view { width:480px; height:270px; background:#000; border:1px solid #444; object-fit:contain; }
+  code { color:#9cdcfe; }
+  .muted { color:#999; font-size:.85rem; }
+</style>
+</head>
+<body>
+  <h1>dash2 — Remote Control Test Dashboard <span class="muted">(non-Java, issue #21)</span></h1>
+  <p class="muted">
+    Connection: <span id="conn" class="pill">…</span>
+    &nbsp; Heartbeats sent: <span id="hb">0</span>
+    &nbsp; Image age: <span id="age">—</span>
+  </p>
+
+  <div class="row">
+    <div class="panel">
+      <h3>Watchdog</h3>
+      <label><input type="checkbox" id="heartbeat" /> heartbeat (drives image stream)</label>
+
+      <h3>Steering</h3>
+      <input type="range" id="steer" min="-100" max="100" value="0" />
+      <span id="steerVal">0</span>
+      <div>
+        <button data-servo="left">◄ left</button>
+        <button data-servo="center">center</button>
+        <button data-servo="right">right ►</button>
+      </div>
+
+      <h3>Motor</h3>
+      <button data-motor="up">▲ gas</button>
+      <button data-motor="down">▼ slow</button>
+      <button data-motor="brake">brake</button>
+      <button data-motor="stop">STOP</button>
+
+      <p class="muted">addresses:<br /><code id="addr"></code></p>
+    </div>
+
+    <div class="panel">
+      <h3>Simulator view <span class="muted">(Red Dog:SIMULATOR_IMAGE)</span></h3>
+      <img id="view" alt="no image yet — enable heartbeat" />
+    </div>
+  </div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+
+async function post(path, body) {
+  await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+
+// drive controls
+$("#steer").addEventListener("input", (e) => {
+  $("#steerVal").textContent = e.target.value;
+  post("/api/drive", { type: "servodirect", position: Number(e.target.value) });
+});
+document.querySelectorAll("[data-servo]").forEach((b) =>
+  b.addEventListener("click", () => post("/api/drive", { type: "servo", position: b.dataset.servo })));
+document.querySelectorAll("[data-motor]").forEach((b) =>
+  b.addEventListener("click", () => post("/api/drive", { type: "motor", speed: b.dataset.motor })));
+$("#heartbeat").addEventListener("change", (e) => post("/api/heartbeat", { on: e.target.checked }));
+
+// poll state + image
+async function tick() {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    const conn = $("#conn");
+    conn.textContent = s.connected ? "connected" : "waiting for simulator";
+    conn.style.background = s.connected ? "#1f7a1f" : "#7a1f1f";
+    $("#hb").textContent = s.heartbeatCount;
+    $("#age").textContent = s.imageAgeMs == null ? "—" : s.imageAgeMs + " ms";
+    $("#addr").textContent = JSON.stringify(s.addresses, null, 1);
+    if (s.hasImage) {
+      const img = await (await fetch("/api/image")).text();
+      if (img) $("#view").src = img;
+    }
+  } catch {}
+}
+setInterval(tick, 300);
+tick();
+</script>
+</body>
+</html>

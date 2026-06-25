@@ -4,8 +4,12 @@ const defaultConfig = {
   busUrl: "http://localhost:8080/eventbus",
   watchdogEnabled: true,
   debugHeartbeat: true,
+  // EventBus addresses follow the documented callsign + responsibility
+  // convention (callsign + ":" + suffix), never a bare callsign.
   heartbeatCallsign: "Velvet ears",
+  heartbeatAddressSuffix: "HEARTBEAT",
   carCallsign: "Lost sheep Bo",
+  carAddressSuffix: "CARCOMMAND",
   imageServerCallsign: "Red Dog",
   imageAddressSuffix: "SIMULATOR_IMAGE",
   imageMimeType: "image/jpeg",
@@ -17,7 +21,9 @@ const configFields = {
   watchdogEnabled: { type: "boolean" },
   debugHeartbeat: { type: "boolean" },
   heartbeatCallsign: { type: "text", width: 160 },
+  heartbeatAddressSuffix: { type: "text", width: 160 },
   carCallsign: { type: "text", width: 160 },
+  carAddressSuffix: { type: "text", width: 160 },
   imageServerCallsign: { type: "text", width: 160 },
   imageAddressSuffix: { type: "text", width: 160 },
   imageMimeType: { type: "text", width: 120 },

@@ -30,11 +30,14 @@ EventBus addresses follow the documented `callsign:EVENT` convention (e.g.
 `Red Dog:SIMULATOR_IMAGE`). Addressing by bare callsign is a pre-2019 flaw that
 was already fixed — use callsign + responsibility.
 
-| Responsibility (module) | Character | Callsign | Direction | Dashboard role |
-|--------------------------|-----------|----------|-----------|----------------|
-| watchdog (heartbeat) | FLASH | `Velvet ears` | server → sim | send periodic heartbeats (also drives image replies) |
-| car (control inputs) | BO | `Lost sheep Bo` | server → sim | send `servodirect` / `servo` / `motor` commands |
-| imageview (debug images) | ROSCO | `Red Dog` | sim → server | receive JPEG data-URLs, display them |
+| Responsibility (module) | Character | Address (`callsign:SUFFIX`) | Direction | Dashboard role |
+|--------------------------|-----------|------------------------------|-----------|----------------|
+| watchdog (heartbeat) | FLASH | `Velvet ears:HEARTBEAT` | server → sim | send periodic heartbeats (also drives image replies) |
+| car (control inputs) | BO | `Lost sheep Bo:CARCOMMAND` | server → sim | send `servodirect` / `servo` / `motor` commands |
+| imageview (debug images) | ROSCO | `Red Dog:SIMULATOR_IMAGE` | sim → server | receive JPEG data-URLs, display them |
+
+These match the defaults in `js/remote/RemoteConfigEditor.js`; change both sides
+together if you customize them.
 
 ## Prerequisites
 
@@ -52,58 +55,27 @@ Open `index.html` in a WebGL2-capable browser (Chrome recommended). It loads the
 `dist/` bundles and the SockJS + vert.x EventBus client libraries. Leave it open;
 the **remote** mode button is what triggers the outbound connection.
 
-## 2. Set up the Node.js test dashboard
+## 2. Run the Node.js test dashboard
 
-The dashboard is both the **EventBus bridge** (SockJS server on port 8080) and a
-small control UI. Scaffold:
-
-```bash
-mkdir -p test-dashboard && cd test-dashboard
-npm init -y
-npm install sockjs
-```
-
-Minimal bridge (`server.js`) — see issue #21 for the fuller sketch:
-
-```js
-const http = require('http'), sockjs = require('sockjs');
-const ebus = sockjs.createServer({ prefix: '/eventbus' });
-let conn = null, hb = 0, beat = null, lastImage = null;
-
-ebus.on('connection', c => {
-  conn = c;
-  c.on('data', m => {                       // frames FROM the simulator
-    const f = JSON.parse(m);
-    if (f.type === 'publish' && f.address === 'Red Dog:SIMULATOR_IMAGE')
-      lastImage = f.body;                    // data:image/jpeg URL
-    // 'register' / 'unregister' / 'ping' -> track/ignore
-  });
-  c.on('close', () => { conn = null; });
-});
-
-function sendToSim(address, body) {          // frames TO the simulator
-  if (conn) conn.write(JSON.stringify({ type: 'message', address, body }));
-}
-// heartbeat toggle (watchdog) — also drives the image stream:
-const startBeat = () => beat = setInterval(() => sendToSim('Velvet ears', { n: ++hb }), 500);
-const stopBeat  = () => { clearInterval(beat); beat = null; };
-// drive: sendToSim('Lost sheep Bo', { type: 'servodirect', position: 30 })
-
-const srv = http.createServer();
-ebus.installHandlers(srv, { prefix: '/eventbus' });
-srv.listen(8080, '0.0.0.0', () => console.log('test bridge on :8080/eventbus'));
-```
-
-Run it:
+The dashboard is committed in [`test-dashboard/`](../test-dashboard/) — it is both
+the **EventBus bridge** (SockJS server on port 8080) and a **control UI**
+(steering slider, motor buttons, heartbeat toggle, live image). No scaffolding
+needed:
 
 ```bash
-node server.js
+cd test-dashboard
+npm install
+npm start            # serves http://localhost:8080  (bridge at /eventbus)
 ```
 
-> The simulator's EventBus URL is currently hardcoded to
-> `http://localhost:8080/eventbus`, so binding the test server there means **no
-> change to the simulator** is needed. (Making the URL/callsigns configurable is
-> [#16](https://github.com/rc-dukes/dash2/issues/16).)
+Environment variables: `PORT` (default 8080), `HEARTBEAT_MS` (default 500).
+See [test-dashboard/README.md](../test-dashboard/README.md) for details.
+
+> The simulator's default EventBus URL is `http://localhost:8080/eventbus`, so
+> binding the test server there means **no change to the simulator** is needed.
+> The URL and callsign/responsibility addresses are configurable in the
+> simulator's remote config (delivered in [#16](https://github.com/rc-dukes/dash2/issues/16));
+> if you change them, change `test-dashboard/server.js` to match.
 
 ## 3. Connect and verify
 
@@ -114,20 +86,20 @@ node server.js
    - **green** — connected ✅
    - **red** — closed (test server not reachable)
 3. With the **heartbeat** running, the simulator replies with a JPEG to
-   `Red Dog:SIMULATOR_IMAGE` on each beat — the dashboard's `lastImage` updates.
-4. Sending `servodirect` / `servo` / `motor` to `Lost sheep Bo` steers/throttles
-   the simulated car.
+   `Red Dog:SIMULATOR_IMAGE` on each beat — the dashboard's live image updates.
+4. Sending `servodirect` / `servo` / `motor` to `Lost sheep Bo:CARCOMMAND`
+   steers/throttles the simulated car.
 
 ## Troubleshooting
 
 - **Button stays red/violet** — the test server isn't listening on
-  `:8080/eventbus`, or the SockJS path/prefix doesn't match. Confirm `node server.js`
+  `:8080/eventbus`, or the SockJS path/prefix doesn't match. Confirm `npm start`
   is running and reachable.
-- **No images** — images are heartbeat-driven; make sure heartbeats are being
-  sent to `Velvet ears`.
-- **Steering doesn't read back** — known bugs to pick up in #21:
-  `RemoteControl` ignores its constructor args, and `motor brake`/`stop` write to
-  `this.break` (typo) instead of `this.brake`.
+- **No images** — images are heartbeat-driven; make sure the heartbeat toggle is
+  on (heartbeats go to `Velvet ears:HEARTBEAT`).
+- **Address mismatch** — the dashboard addresses in `test-dashboard/server.js`
+  must equal the simulator's `RemoteConfigEditor` defaults (`callsign:SUFFIX`),
+  never bare callsigns.
 
 ## Related
 

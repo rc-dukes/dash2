@@ -1,0 +1,17 @@
+{
+  "name": "dash2-test-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lightweight non-Java test dashboard for the dash2 remote-control feature (vert.x EventBus bridge over SockJS). See ../docs/test-environment.md and issue #21.",
+  "type": "commonjs",
+  "bin": {
+    "dash2-test-dashboard": "server.js"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "sockjs": "^0.3.24"
+  }
+}
