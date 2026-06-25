@@ -1,8 +1,7 @@
 // part of https://github.com/rc-dukes/dash fork of https://github.com/mattbradley/dash
 
-const CALLSIGN_FLASH = "Velvet ears"; // Watchdog
-const CALLSIGN_BO = "Lost sheep Bo";  // Car
-const CALLSIGN_ROSCO = "Red Dog"; // Debug ImageView server
+import RemoteConfigEditor from "./RemoteConfigEditor.js";
+
 var simulatorVerticle = null;
 
 /**
@@ -12,16 +11,17 @@ export default class SimulatorVerticle {
 
   /**
    * construct me
-   * @param busUrl
+   * @param config
    * @param self
    * @param onHeartBeat
    */
-  constructor(busUrl,self=null,onHeartBeat=null) {
-    this.busUrl=busUrl;
+  constructor(config,self=null,onHeartBeat=null) {
+    this.config=Object.assign({}, RemoteConfigEditor.defaultConfig, config);
+    this.busUrl=this.config.busUrl;
     this.self=self;
     this.onHeartBeat=onHeartBeat;
     this.heartBeatCount=0;
-    this.debugHeartBeat=true;
+    this.debugHeartBeat=this.config.debugHeartbeat;
     this.remoteControl=new RemoteControl();
     simulatorVerticle=this;
     this.enabled=false;
@@ -35,7 +35,7 @@ export default class SimulatorVerticle {
    * @param headers
    */
   publish(address,message,headers) {
-    if (this.eb.state===EventBus.OPEN)
+    if (this.eb && this.eb.state===EventBus.OPEN)
   	  this.eb.publish(address, message, headers);
   };
 
@@ -44,7 +44,7 @@ export default class SimulatorVerticle {
    * @param imgData
    */
   sendImage(imgData) {
-    this.publish(CALLSIGN_ROSCO+":SIMULATOR_IMAGE",imgData);
+    this.publish(this.config.imageServerCallsign+":"+this.config.imageAddressSuffix,imgData);
   }
 
   /**
@@ -54,8 +54,9 @@ export default class SimulatorVerticle {
     if (!this.eb) {
       this.eb = new EventBus(this.busUrl);
       this.eb.onopen = function() {
-        simulatorVerticle.eb.registerHandler(CALLSIGN_FLASH,simulatorVerticle.heartBeatHandler);
-        simulatorVerticle.eb.registerHandler(CALLSIGN_BO,simulatorVerticle.carMessageHandler)
+        if (simulatorVerticle.config.watchdogEnabled)
+          simulatorVerticle.eb.registerHandler(simulatorVerticle.config.heartbeatCallsign,simulatorVerticle.heartBeatHandler);
+        simulatorVerticle.eb.registerHandler(simulatorVerticle.config.carCallsign,simulatorVerticle.carMessageHandler);
       };
     };
     this.enabled=true;
